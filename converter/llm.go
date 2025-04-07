@@ -8,7 +8,11 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-func GenerateText(prompt string) (string, error) {
+// Define GenerateText as a variable that holds a function
+var GenerateText = generateTextImpl
+
+// The actual implementation is now in this function
+func generateTextImpl(prompt string) (string, error) {
 	client := openai.NewClient(
 		os.Getenv("OPENAI_API_KEY"),
 	)
