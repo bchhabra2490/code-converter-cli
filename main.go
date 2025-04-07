@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/b-eq/code-converter-cli/converter"
 )
@@ -53,11 +54,27 @@ func main() {
 	fmt.Printf("Converting code from %s to %s language\n", absInputDir, *targetLang)
 	fmt.Printf("Output will be saved to %s\n", absOutputDir)
 	
-	// Create and run converter
-	conv := converter.NewConverter(absInputDir, absOutputDir, *targetLang)
-	if err := conv.Convert(); err != nil {
-		fmt.Printf("Error during conversion: %v\n", err)
-		os.Exit(1)
+	inputPaths := strings.Split(*inputDir, ",")
+	for _, path := range inputPaths {
+		path = strings.TrimSpace(path)
+		fileInfo, err := os.Stat(path)
+		if err != nil {
+			fmt.Printf("Error accessing path %s: %v\n", path, err)
+			continue
+		}
+		
+		if fileInfo.IsDir() {
+			// Process directory (existing code)
+			conv := converter.NewConverter(path, *outputDir, *targetLang)
+			if err := conv.Convert(); err != nil {
+				fmt.Printf("Error during directory conversion: %v\n", err)
+			}
+		} else {
+			// Process individual file
+			if err := converter.ConvertFile(path, *outputDir, *targetLang); err != nil {
+				fmt.Printf("Error converting file %s: %v\n", path, err)
+			}
+		}
 	}
 	
 	fmt.Println("Conversion completed successfully!")

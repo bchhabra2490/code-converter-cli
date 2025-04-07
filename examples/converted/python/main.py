@@ -1,6 +1,5 @@
-import os
 import time
-from datetime import datetime
+import sys
 
 
 class User:
@@ -12,17 +11,16 @@ class User:
 
 
 def new_user(name, email):
-    return User(id=generate_id(), name=name, email=email, created_at=datetime.now())
+    return User(id=generate_id(), name=name, email=email, created_at=time.time())
 
 
 def generate_id():
-    return int(time.time_ns() % 10000)
+    return int(time.time() * 1000) % 10000
 
 
 def save_user(user):
     # Simulate database operation
     print(f"Saving user: {user.name}")
-    return None
 
 
 def get_user_by_id(id):
@@ -31,7 +29,7 @@ def get_user_by_id(id):
         raise ValueError(f"invalid user ID: {id}")
 
     # Mock data
-    return User(id=id, name="Example User", email="user@example.com", created_at=datetime.now())
+    return User(id=id, name="Example User", email="user@example.com", created_at=time.time())
 
 
 def main():
@@ -42,22 +40,22 @@ def main():
     try:
         save_user(user)
     except Exception as err:
-        print(f"Error saving user: {err}")
-        os._exit(1)
+        print(f"Error saving user: {err}", file=sys.stderr)
+        sys.exit(1)
 
     # Retrieve the user
     try:
         retrieved_user = get_user_by_id(user.id)
     except Exception as err:
-        print(f"Error retrieving user: {err}")
-        os._exit(1)
+        print(f"Error retrieving user: {err}", file=sys.stderr)
+        sys.exit(1)
 
     # Display user information
     print("User Information:")
     print(f"ID: {retrieved_user.id}")
     print(f"Name: {retrieved_user.name}")
     print(f"Email: {retrieved_user.email}")
-    print(f"Created: {retrieved_user.created_at.strftime('%Y-%m-%dT%H:%M:%S')}")
+    print("Created:", time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(retrieved_user.created_at)))
 
 
 if __name__ == "__main__":

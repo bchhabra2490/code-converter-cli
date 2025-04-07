@@ -9,12 +9,12 @@ DEMO_OUTPUT="./examples/converted"
 mkdir -p "$DEMO_OUTPUT"
 
 # Run the code converter to convert the Go example to Python
-echo "Converting Go code to Python..."
-./code-converter-cli -input ./examples/demo -output "$DEMO_OUTPUT/python" -lang python
+# echo "Converting Go code to Python..."
+# ./code-converter-cli -input ./examples/demo -output "$DEMO_OUTPUT/python" -lang python
 
 # Run the code converter to convert the Go example to JavaScript
 echo "Converting Go code to JavaScript..."
-./code-converter-cli -input ./examples/demo -output "$DEMO_OUTPUT/javascript" -lang javascript
+./code-converter-cli -input ./examples/demo/main.go -output "$DEMO_OUTPUT/javascript" -lang javascript
 
 # # Show the converted files
 # echo -e "\nConverted Python files:"

@@ -117,6 +117,53 @@ func (c *Converter) convertCode(sourceCode, sourceLang, filePath string) (string
 	return convertedCode, newExt, nil
 }
 
+// ConvertFile converts a single file from source to target language
+func ConvertFile(filePath, outputDir, targetLang string) error {
+    _, fileName := filepath.Split(filePath)
+    outputPath := filepath.Join(outputDir, fileName)
+    
+    // Create output directory if it doesn't exist
+    if err := os.MkdirAll(outputDir, 0755); err != nil {
+        return fmt.Errorf("failed to create output directory %s: %w", outputDir, err)
+    }
+    
+    // Get source language
+    srcLang, shouldProcess := detectLanguage(filePath)
+    if !shouldProcess {
+        // Just copy the file if we're not converting it
+        return copyFile(filePath, outputPath)
+    }
+    
+    fmt.Printf("Converting %s from %s to %s\n", filePath, srcLang, targetLang)
+    
+    // Read the source file
+    content, err := os.ReadFile(filePath)
+    if err != nil {
+        return fmt.Errorf("failed to read file %s: %w", filePath, err)
+    }
+    
+    // Create a temporary converter just for this file
+    c := NewConverter(filePath, outputDir, targetLang)
+    
+    // Convert the code
+    convertedCode, newExt, err := c.convertCode(string(content), srcLang, filePath)
+    if err != nil {
+        return fmt.Errorf("failed to convert %s: %w", filePath, err)
+    }
+    
+    // Update the output path with the new file extension if needed
+    if newExt != "" {
+        outputPath = changeExtension(outputPath, newExt)
+    }
+    
+    // Write the converted code to the output file
+    if err := os.WriteFile(outputPath, []byte(convertedCode), 0644); err != nil {
+        return fmt.Errorf("failed to write file %s: %w", outputPath, err)
+    }
+    
+    return nil
+}
+
 func convertUsingLLM(sourceCode, sourceLang, targetLang string) (string, error) {
 	prompt := fmt.Sprintf("Convert the following %s code to %s:\n\n%s. Just return the converted code, no other text.", sourceLang, targetLang, sourceCode)
 

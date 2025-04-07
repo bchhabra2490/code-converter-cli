@@ -5,6 +5,7 @@ A command-line tool written in Go that converts code from one programming langua
 ## Features
 
 - Convert an entire project from one programming language to another
+- Process individual files or multiple files
 - Preserve directory structure in the output
 - AI-powered code translation using OpenAI's GPT-4o model
 - Automatic handling of file extensions based on target language
@@ -35,14 +36,23 @@ go build -o code-converter-cli .
 # Set your OpenAI API key
 export OPENAI_API_KEY="your-api-key"
 
-# Convert code
+# Convert an entire directory
 ./code-converter-cli -input /path/to/source -output /path/to/destination -lang python
+
+# Convert a single file
+./code-converter-cli -input /path/to/source/file.js -output /path/to/destination -lang python
+
+# Convert multiple specific files
+./code-converter-cli -input /path/to/file1.go,/path/to/file2.go -output /path/to/destination -lang python
 ```
 
 ### Command-line Arguments
 
-- `-input`: Source project directory (required)
-- `-output`: Destination directory for the converted code (required)
+- `-input`: Source project directory or file path(s) (required)
+  - Can specify a directory to process all files
+  - Can specify a single file path
+  - Can specify multiple files as a comma-separated list
+- `-output`: Output directory for converted code (required)
 - `-lang`: Target programming language (required)
 
 ### Supported Languages
@@ -65,12 +75,13 @@ The tool currently recognizes the following programming languages:
 
 ## How It Works
 
-1. The tool scans the input directory and identifies code files based on their extensions.
-2. For each recognized code file, it reads the source code.
-3. The source code is sent to OpenAI's GPT-4o model with a prompt specifying the source and target languages.
-4. The AI generates the equivalent code in the target language.
-5. The tool cleans the response (removing markdown code block markers if present).
-6. The converted files are written to the output directory with appropriate file extensions, preserving the original folder structure.
+1. The tool processes the input, which can be a directory, a single file, or multiple files.
+2. For directories, it recursively scans and identifies code files based on their extensions.
+3. For each recognized code file, it reads the source code.
+4. The source code is sent to OpenAI's GPT-4o model with a prompt specifying the source and target languages.
+5. The AI generates the equivalent code in the target language.
+6. The tool cleans the response (removing markdown code block markers if present).
+7. The converted files are written to the output directory with appropriate file extensions, preserving the original folder structure for directory inputs.
 
 ## Implementation Notes
 
@@ -78,6 +89,7 @@ The tool currently recognizes the following programming languages:
 - Non-code files (e.g., images, data files) are copied as-is to the output directory.
 - Certain directories like `.git`, `node_modules`, and `vendor` are skipped during processing.
 - The tool automatically handles file extension changes based on the target language.
+- When processing individual files, the output directory structure is flattened for those files.
 
 ## Limitations
 
@@ -86,6 +98,7 @@ The tool currently recognizes the following programming languages:
 - Full conversion between programming languages is an extremely complex task that often requires manual adjustment.
 - Complex language features, custom libraries, and platform-specific code may not convert perfectly.
 - API rate limits may affect large-scale conversions.
+- When converting multiple files separately, inter-file dependencies may not be handled as well as when converting entire directories.
 
 ## License
 
